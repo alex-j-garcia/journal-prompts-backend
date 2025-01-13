@@ -1,0 +1,14 @@
+{
+  "name": "journal-prompts",
+  "version": "1.0.0",
+  "description": "Journaling application with provided writing prompts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "journal"
+  ],
+  "author": "Alex J. Dominguez",
+  "license": "ISC"
+}
