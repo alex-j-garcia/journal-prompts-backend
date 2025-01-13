@@ -4,11 +4,15 @@
   "description": "Journaling application with provided writing prompts",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
   },
   "keywords": [
     "journal"
   ],
   "author": "Alex J. Dominguez",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "~3.1.9"
+  }
 }
