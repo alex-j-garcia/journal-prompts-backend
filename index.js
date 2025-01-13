@@ -4,6 +4,7 @@ const promptsRouter = require('./controllers/prompts');
 require('dotenv').config();
 
 const app = express();
+app.use(express.static('dist'));
 app.use('/api/prompts', promptsRouter);
 
 app.listen(3001, () => {
