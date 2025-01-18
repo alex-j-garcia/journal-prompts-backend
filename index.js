@@ -13,6 +13,9 @@ app.use(middleware.errorHandler);
 app.use(middleware.unknownEndpoint);
 
 const PORT = process.env.PORT;
+const MONGODB_URI = process.env.NODE_ENV === 'test'
+  ? process.env.TEST_MONGODB_URI
+  : process.env.MONGODB_URI;
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
@@ -21,10 +24,12 @@ app.listen(PORT, () => {
 mongoose.set('strictQuery', false);
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(MONGODB_URI)
   .then(() => {
     console.log('successsfully connected to MongoDB')
   })
   .catch((error) => {
     console.log(`a MongoDB connection error occurred: ${error}`);
   });
+
+module.exports = app;
