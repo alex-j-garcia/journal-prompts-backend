@@ -1,6 +1,8 @@
+const logger = require('../utils/logger')
+
 const requestLogger = (request, response, next) => {
-  console.log(`[${request.method}] ${request.url}`);
-  console.log(`Body: ${JSON.stringify(request.body)}`);
+  logger.info(`[${request.method}] ${request.url}`);
+  logger.info(`Body: ${JSON.stringify(request.body)}`);
   next();
 };
 
