@@ -18,6 +18,7 @@
   "author": "Alex J. Dominguez",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "~9.4.0",
     "@flydotio/dockerfile": "~0.7.0",
     "nodemon": "~3.1.9",
     "supertest": "~7.0.0"

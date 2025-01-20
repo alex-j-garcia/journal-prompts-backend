@@ -13,7 +13,12 @@ router.get('/', async (request, response, next) => {
 router.get('/:id', async (request, response, next) => {
   try {
     const prompt = await Prompt.findById(request.params.id);
-    response.json(prompt);
+
+    if (prompt) {
+      return response.json(prompt);
+    }
+
+    response.status(404).end();
   } catch(exception) {
     next(exception);
   }
