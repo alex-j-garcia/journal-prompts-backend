@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const promptSchema = new mongoose.Schema({
   content: String,
   tag: String,
-  date: Date,
+  activePrompt: Boolean,
+  answers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Answer'
+    }
+  ]
 });
 
 promptSchema.set('toJSON', {
