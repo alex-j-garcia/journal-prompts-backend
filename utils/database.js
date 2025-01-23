@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dayjs = require('dayjs');
 const Prompt = require('../models/prompt');
 const prompts = require('./prompts.json');
 
@@ -28,4 +29,33 @@ const setDatabasePrompts = async () => {
   console.log('Connection to MongoDB closed');
 };
 
-setDatabasePrompts();
+const setDailyPrompt = async () => {
+  const date = dayjs().date();
+  const prompt = prompts[date - 1];
+
+  try {
+    const activePrompt = await Prompt.findOne({ activePrompt: true });
+    await Prompt.findByIdAndUpdate(activePrompt.id, { activePrompt: false });
+
+    const dailyPrompt = await Prompt.findOne( { content: prompt.content } );
+    const newActivePrompt = await Prompt.findByIdAndUpdate(dailyPrompt.id, { activePrompt: true });
+    console.log(`Daily prompt set to: ${JSON.stringify(newActivePrompt)}`);
+  } catch (exception) {
+    console.error(`There was an error: ${exception}`);
+  } finally {
+    await mongoose.connection.close();
+    console.log('Connection to MongoDB closed');
+  }
+};
+
+const main = async () => {
+  if (process.argv[2] === 'reset') {
+    await setDatabasePrompts();
+    console.log('Database reset to default. There is no active prompt');
+  } else {
+    console.log('Setting the daily prompt...')
+    await setDailyPrompt();
+  }
+}
+
+main()

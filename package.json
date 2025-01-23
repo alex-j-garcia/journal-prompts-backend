@@ -20,6 +20,7 @@
   "devDependencies": {
     "@faker-js/faker": "~9.4.0",
     "@flydotio/dockerfile": "~0.7.0",
+    "dayjs": "~1.11.13",
     "nodemon": "~3.1.9",
     "supertest": "~7.0.0"
   },
