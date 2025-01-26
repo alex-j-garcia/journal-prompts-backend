@@ -2,6 +2,7 @@ const logger = require('../utils/logger')
 
 const requestLogger = (request, response, next) => {
   logger.info(`[${request.method}] ${request.url}`);
+  logger.info(`Query string: ${JSON.stringify(request.query)}`);
   logger.info(`Body: ${JSON.stringify(request.body)}`);
   next();
 };

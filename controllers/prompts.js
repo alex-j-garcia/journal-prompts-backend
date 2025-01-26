@@ -1,10 +1,19 @@
 const router = require('express').Router();
-const Prompt = require('../models/prompt')
+const Prompt = require('../models/prompt');
 
 router.get('/', async (request, response, next) => {
+  const isActive = request.query.active;
+  let query = {};
+
+  if (isActive === 'true') {
+    query = { ...query, activePrompt: true };
+  } else if (isActive === 'false') {
+    query = { ...query, activePrompt: false };
+  }
+
   try {
-    const prompts = await Prompt.find({});
-    response.json(prompts);
+    const promptOrPrompts = await Prompt.find(query);
+    response.json(promptOrPrompts);
   } catch(exception) {
     next(exception);
   }

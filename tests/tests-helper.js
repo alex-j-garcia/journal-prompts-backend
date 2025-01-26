@@ -1,6 +1,16 @@
 const Prompt = require('../models/prompt');
 const { faker } = require('@faker-js/faker');
 
+const setActivePrompt = (prompts) => {
+  const index = Math.floor(Math.random() * prompts.length);
+  const activePrompt = prompts[index];
+  return prompts.map((prompt) => {
+    return prompt.content === activePrompt.content 
+      ? { ...prompt, activePrompt: true }
+      : prompt;
+  });
+};
+
 const generateTestData = (length = 0) => {
   const testData = [];
   testData.length = length 
@@ -10,11 +20,13 @@ const generateTestData = (length = 0) => {
   for (let i = 0; i < testData.length; i++) {
     testData[i] = {
       content: faker.lorem.sentence(),
+      activePrompt: false,
+      answers: [],
       tag: faker.lorem.word(),
     };
   }
 
-  return testData
+  return setActivePrompt(testData);
 };
 
 const getPromptsInDb = async () => {
