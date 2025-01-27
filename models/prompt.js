@@ -4,12 +4,6 @@ const promptSchema = new mongoose.Schema({
   content: String,
   tag: String,
   activePrompt: Boolean,
-  answers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Answer'
-    }
-  ]
 });
 
 promptSchema.set('toJSON', {
