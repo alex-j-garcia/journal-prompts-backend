@@ -1,9 +1,16 @@
 const mongoose = require('mongoose');
 
 const answerSchema = new mongoose.Schema({
-  answer: String,
+  answer: {
+    type: String,
+    required: true,
+    minLength: 100,
+    maxLength: 1500,
+  },
+  promptId: mongoose.Schema.Types.ObjectId,
   author: {
-    username: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
 });
 
