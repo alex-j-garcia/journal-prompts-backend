@@ -17,8 +17,13 @@ const api = supertest(app);
 describe('/api/prompts', () => {
   beforeEach(async () => {
     await Prompt.deleteMany({});
-    const promptsToSave = helper.initialPrompts.map((prompt) => new Prompt(prompt));
+
+    const promptsToSave = helper
+      .prompts
+      .initialPrompts
+      .map((prompt) => new Prompt(prompt));
     const promptPromises = promptsToSave.map((prompt) => prompt.save());
+
     await Promise.all(promptPromises);
   });
 
@@ -39,7 +44,7 @@ describe('/api/prompts', () => {
   });
 
   test('it should return the active prompt', async () => {
-    const promptsInDb = await helper.getPromptsInDb();
+    const promptsInDb = await helper.prompts.getPromptsInDb();
     const activePrompt = promptsInDb.find((prompt) => prompt.activePrompt);
 
     const response = await api

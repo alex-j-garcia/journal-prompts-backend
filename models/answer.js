@@ -8,7 +8,7 @@ const answerSchema = new mongoose.Schema({
     maxLength: 1500,
   },
   promptId: mongoose.Schema.Types.ObjectId,
-  author: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },

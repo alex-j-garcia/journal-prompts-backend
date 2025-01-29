@@ -1,7 +1,7 @@
-const router = require('express').Router();
+const promptsRouter = require('express').Router();
 const Prompt = require('../models/prompt');
 
-router.get('/', async (request, response, next) => {
+promptsRouter.get('/', async (request, response, next) => {
   try {
     const activePrompt = await Prompt.findOne({ activePrompt: true });
     response.json(activePrompt);
@@ -10,4 +10,4 @@ router.get('/', async (request, response, next) => {
   }
 });
 
-module.exports = router;
+module.exports = promptsRouter;

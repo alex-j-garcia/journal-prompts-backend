@@ -1,21 +1,20 @@
 const Prompt = require('../models/prompt');
+const Answer = require('../models/answer');
 const { faker } = require('@faker-js/faker');
 
 const setActivePrompt = (prompts) => {
   const index = Math.floor(Math.random() * prompts.length);
   const activePrompt = prompts[index];
-  return prompts.map((prompt) => {
-    return prompt.content === activePrompt.content 
+  return prompts.map((prompt) => (
+    prompt.content === activePrompt.content 
       ? { ...prompt, activePrompt: true }
-      : prompt;
-  });
+      : prompt
+  ));
 };
 
-const generateTestData = (length = 0) => {
+const generateTestPrompts = (length = 2) => {
   const testData = [];
-  testData.length = length 
-    ? length
-    : Math.ceil(Math.random() * 5);
+  testData.length = length;
   
   for (let i = 0; i < testData.length; i++) {
     testData[i] = {
@@ -29,10 +28,31 @@ const generateTestData = (length = 0) => {
   return setActivePrompt(testData);
 };
 
+const getAnswerPayload = (wordCount = 100) => {
+  return {
+    answer: faker.lorem.words(wordCount),
+  };
+}
+
+const generateTestAnswers = (length = 2, wordCount = 100) => {
+  const testData = [];
+  testData.length = length;
+  
+  for (let i = 0; i < testData.length; i++) {
+    testData[i] = getAnswerPayload();
+  }
+
+  return testData;
+};
+
 const getPromptsInDb = async () => {
   const documents = await Prompt.find({});
-  const prompts = documents.map((prompt) => prompt.toJSON());
-  return prompts;
+  return documents.map((prompt) => prompt.toJSON());
+};
+
+const getAnswersInDb = async () => {
+  const documents = await Answer.find({});
+  return documents.map((answer) => answer.toJSON());
 };
 
 const getNonexistingID = async () => {
@@ -47,8 +67,17 @@ const getMalformedID = () => {
 };
 
 module.exports = {
-  initialPrompts: generateTestData(2),
-  malformedID: getMalformedID(),
-  getPromptsInDb,
-  getNonexistingID,
+  prompts: {
+    initialPrompts: generateTestPrompts(),
+    getPromptsInDb,
+  },
+  answers: {
+    initialAnswers: generateTestAnswers(),
+    getAnswersInDb,
+    getAnswerPayload,
+  },
+  misc: {
+    malformedID: getMalformedID(),
+    getNonexistingID,
+  }
 };
