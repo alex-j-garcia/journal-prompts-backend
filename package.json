@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test node --test",
+    "test:only": "NODE_ENV=test node --test --test-only",
     "dev": "NODE_ENV=development nodemon index.js",
     "build:ui": "rm -rf ./dist && cd ../journal-prompts-frontend && npm run build && cp -r ./dist ../journal-prompts-backend/",
     "start": "NODE_ENV=production node index.js",
