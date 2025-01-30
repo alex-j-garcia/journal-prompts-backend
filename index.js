@@ -1,4 +1,5 @@
-require('dotenv').config();
+const config = require('./utils/config');
+const logger = require('./utils/logger');
 const express = require('express');
 const mongoose = require('mongoose');
 const middleware = require('./utils/middleware');
@@ -14,24 +15,19 @@ app.use('/api/answers', answersRouter);
 app.use(middleware.errorHandler);
 app.use(middleware.unknownEndpoint);
 
-const PORT = process.env.PORT;
-const MONGODB_URI = process.env.NODE_ENV === 'test'
-  ? process.env.TEST_MONGODB_URI
-  : process.env.MONGODB_URI;
-
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+app.listen(config.PORT, () => {
+  console.log(`App listening on port ${config.PORT}`);
 })
 
 mongoose.set('strictQuery', false);
 
 mongoose
-  .connect(MONGODB_URI)
+  .connect(config.MONGODB_URI)
   .then(() => {
-    console.log('successsfully connected to MongoDB')
+    logger.info('successsfully connected to MongoDB')
   })
   .catch((error) => {
-    console.log(`a MongoDB connection error occurred: ${error}`);
+    logger.info(`a MongoDB connection error occurred: ${error}`);
   });
 
 module.exports = app;
