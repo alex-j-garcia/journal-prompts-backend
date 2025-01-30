@@ -1,5 +1,5 @@
 const { 
-  test,
+  it,
   describe,
   beforeEach,
   after,
@@ -27,14 +27,14 @@ describe('/api/prompts', () => {
     await Promise.all(promptPromises);
   });
 
-  test('it should return prompt in JSON format', async () => {
+  it('should return prompt in JSON format', async () => {
     await api
       .get(endpoints.allPrompts)
       .expect(200)
       .expect('Content-Type', /application\/json/);
   });
 
-  test('it should return one prompt', async () => {
+  it('should return one prompt', async () => {
     const response = await api
       .get(endpoints.allPrompts)
       .expect(200)
@@ -43,7 +43,7 @@ describe('/api/prompts', () => {
     assert(!response.body.length);
   });
 
-  test('it should return the active prompt', async () => {
+  it('should return the active prompt', async () => {
     const promptsInDb = await helper.prompts.getPromptsInDb();
     const activePrompt = promptsInDb.find((prompt) => prompt.activePrompt);
 

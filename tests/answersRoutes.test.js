@@ -1,5 +1,5 @@
 const { 
-  test,
+  it,
   describe,
   beforeEach,
   after,
@@ -42,14 +42,14 @@ describe('/api/answers', () => {
     ]);
   });
 
-  test('it should return answers in JSON format', async () => {
+  it('should return answers in JSON format', async () => {
     await api
       .get(endpoints.allAnswers)
       .expect(200)
       .expect('Content-Type', /application\/json/);
   });
 
-  test('it should return all answers', async () => {
+  it('should return all answers', async () => {
     const initialAnswers = helper.answers.initialAnswers;
 
     const response = await api
@@ -60,7 +60,7 @@ describe('/api/answers', () => {
     assert(response.body.length === initialAnswers.length);
   });
   
-  test('it should return 201 on successful POST', async () => {
+  it('should return 201 on successful POST', async () => {
     const payload = helper.answers.getAnswerPayload();
 
     await api
@@ -69,7 +69,7 @@ describe('/api/answers', () => {
       .expect(201);
   });
   
-  test('it should return the answer in JSON format on successful POST', async () => {
+  it('should return the answer in JSON format on successful POST', async () => {
     const payload = helper.answers.getAnswerPayload();
 
     await api
@@ -79,7 +79,7 @@ describe('/api/answers', () => {
       .expect('Content-Type', /application\/json/);
   });
   
-  test('it should return the answer on successful POST', async () => {
+  it('should return the answer on successful POST', async () => {
     const payload = helper.answers.getAnswerPayload();
 
     const response = await api
@@ -91,7 +91,7 @@ describe('/api/answers', () => {
     assert(response.body.answer === payload.answer);
   });
 
-  test('it should associate anonymous posts with anonymous users', async () => {
+  it('should associate anonymous posts with anonymous users', async () => {
     const activePrompt = await api.get(endpoints.allPrompts);
     
     const payload = helper.answers.getAnswerPayload();
@@ -109,7 +109,7 @@ describe('/api/answers', () => {
     assert(prompt[0].user.username === 'anonymous');
   });
   
-  test('it should respond with 400 if answer is too short', async () => {
+  it('should respond with 400 if answer is too short', async () => {
     const payload = helper.answers.getAnswerPayload(1);
 
     const response = await api
@@ -121,7 +121,7 @@ describe('/api/answers', () => {
     assert(response.body.error === 'answer is too short');
   });
   
-  test('it should respond with 400 if answer is too long', async () => {
+  it('should respond with 400 if answer is too long', async () => {
     const payload = helper.answers.getAnswerPayload(1500);
 
     const response = await api
@@ -133,7 +133,7 @@ describe('/api/answers', () => {
     assert(response.body.error === 'answer is too long');
   });
 
-  test('it should respond with 400 if answer is omitted', async () => {
+  it('should respond with 400 if answer is omitted', async () => {
     const payload = {};
 
     const response = await api
@@ -145,7 +145,7 @@ describe('/api/answers', () => {
     assert(response.body.error === 'answer is required');
   });
 
-  test('it should associate user answers with existing users', async () => {
+  it('should associate user answers with existing users', async () => {
     const usersInDb = await helper.users.getUsersInDb();
     const nonAnonUser = usersInDb.find((user) => user.username === 'root');
     
