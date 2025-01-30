@@ -7,7 +7,7 @@ const {
 const assert = require('node:assert/strict');
 const supertest = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../index');
+const app = require('../app');
 const Answer = require('../models/answer');
 const Prompt = require('../models/prompt');
 const User = require('../models/user');
