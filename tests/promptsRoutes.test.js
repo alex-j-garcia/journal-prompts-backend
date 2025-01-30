@@ -4,7 +4,7 @@ const {
   beforeEach,
   after,
 } = require('node:test');
-const assert = require('node:assert');
+const assert = require('node:assert/strict');
 const supertest = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../index');

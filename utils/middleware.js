@@ -10,6 +10,15 @@ const requestLogger = (request, response, next) => {
 const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformed ID' });
+  } else if (error.name === 'ValidationError'
+      && error.message.includes('is shorter than the minimum allowed length (100).')) {
+    return response.status(400).send({ error: 'answer is too short' });
+  } else if (error.name === 'ValidationError'
+      && error.message.includes('is longer than the maximum allowed length (1500).')) {
+    return response.status(400).send({ error: 'answer is too long' });
+  } else if (error.name === 'ValidationError'
+      && error.message.includes('answer: Path `answer` is required.')) {
+    return response.status(400).send({ error: 'answer is required' });
   }
 
   next(error);

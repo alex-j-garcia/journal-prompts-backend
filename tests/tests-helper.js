@@ -1,5 +1,6 @@
 const Prompt = require('../models/prompt');
 const Answer = require('../models/answer');
+const User = require('../models/user');
 const { faker } = require('@faker-js/faker');
 
 const setActivePrompt = (prompts) => {
@@ -55,6 +56,11 @@ const getAnswersInDb = async () => {
   return documents.map((answer) => answer.toJSON());
 };
 
+const getUsersInDb = async () => {
+  const documents = await User.find({});
+  return documents.map((user) => user.toJSON());
+};
+
 const getNonexistingID = async () => {
   const prompt = new Prompt({ content: faker.lorem.sentence() });
   await prompt.save();
@@ -75,6 +81,9 @@ module.exports = {
     initialAnswers: generateTestAnswers(),
     getAnswersInDb,
     getAnswerPayload,
+  },
+  users: {
+    getUsersInDb,
   },
   misc: {
     malformedID: getMalformedID(),

@@ -4,7 +4,7 @@ const {
   beforeEach,
   after,
 } = require('node:test');
-const assert = require('node:assert');
+const assert = require('node:assert/strict');
 const supertest = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../index');
@@ -14,8 +14,6 @@ const User = require('../models/user');
 const helper = require('./tests-helper');
 const endpoints = require('./endpoints');
 
-const { faker } = require('@faker-js/faker');
-
 const api = supertest(app);
 
 describe('/api/answers', () => {
@@ -24,22 +22,18 @@ describe('/api/answers', () => {
     await Answer.deleteMany({});
     await Prompt.deleteMany({});
 
-    const promptsToSave = helper
-      .prompts
-      .initialPrompts
+    const promptsToSave = helper.prompts.initialPrompts
       .map((prompt) => new Prompt(prompt));
     const promptPromises = promptsToSave.map((prompt) => prompt.save());
 
     const user = new User({ username: 'root' });
     const savedUser = await user.save();
 
-    const answersToSave = helper
-      .answers
-      .initialAnswers
+    const answersToSave = helper.answers.initialAnswers
       .map((answer) => new Answer({
-      ...answer,
-      user: savedUser._id.toString(),
-    }));
+        ...answer,
+        user: savedUser._id.toString(),
+      }));
     const answerPromises = answersToSave.map((answer) => answer.save());
 
     await Promise.all([
@@ -67,9 +61,7 @@ describe('/api/answers', () => {
   });
   
   test('it should return 201 on successful POST', async () => {
-    const payload = {
-      answer: faker.lorem.words(100),
-    };
+    const payload = helper.answers.getAnswerPayload();
 
     await api
       .post(endpoints.allAnswers)
@@ -78,9 +70,7 @@ describe('/api/answers', () => {
   });
   
   test('it should return the answer in JSON format on successful POST', async () => {
-    const payload = {
-      answer: faker.lorem.words(100),
-    };
+    const payload = helper.answers.getAnswerPayload();
 
     await api
       .post(endpoints.allAnswers)
@@ -90,9 +80,7 @@ describe('/api/answers', () => {
   });
   
   test('it should return the answer on successful POST', async () => {
-    const payload = {
-      answer: faker.lorem.words(100),
-    };
+    const payload = helper.answers.getAnswerPayload();
 
     const response = await api
       .post(endpoints.allAnswers)
@@ -106,14 +94,11 @@ describe('/api/answers', () => {
   test('it should associate anonymous posts with anonymous users', async () => {
     const activePrompt = await api.get(endpoints.allPrompts);
     
-    const payload = {
-      answer: faker.lorem.words(100),
-      promptId: activePrompt.body.id,
-    };
+    const payload = helper.answers.getAnswerPayload();
     
     const response = await api
       .post(endpoints.allAnswers)
-      .send(payload)
+      .send({ ...payload, promptId: activePrompt.body.id })
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
@@ -124,11 +109,64 @@ describe('/api/answers', () => {
     assert(prompt[0].user.username === 'anonymous');
   });
   
-  // test('it should respond with 400 if answer is too short', async () => {});
+  test('it should respond with 400 if answer is too short', async () => {
+    const payload = helper.answers.getAnswerPayload(1);
 
-  // test('it should associate user notes with existing users', async () => {});
-  // test('it should respond with 400 if answer is too long', async () => {});
-  // test('it should respond with 400 if answer is omitted', async () => {});
+    const response = await api
+      .post(endpoints.allAnswers)
+      .send(payload)
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    assert(response.body.error === 'answer is too short');
+  });
+  
+  test('it should respond with 400 if answer is too long', async () => {
+    const payload = helper.answers.getAnswerPayload(1500);
+
+    const response = await api
+      .post(endpoints.allAnswers)
+      .send(payload)
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    assert(response.body.error === 'answer is too long');
+  });
+
+  test('it should respond with 400 if answer is omitted', async () => {
+    const payload = {};
+
+    const response = await api
+      .post(endpoints.allAnswers)
+      .send(payload)
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    assert(response.body.error === 'answer is required');
+  });
+
+  test('it should associate user answers with existing users', async () => {
+    const usersInDb = await helper.users.getUsersInDb();
+    const nonAnonUser = usersInDb.find((user) => user.username === 'root');
+    
+    const activePrompt = await api.get(endpoints.allPrompts);
+    
+    const payload = helper.answers.getAnswerPayload();
+    const response = await api
+      .post(endpoints.allAnswers)
+      .send({
+        ...payload,
+        promptId: activePrompt.body.id,
+        user: nonAnonUser.id
+      })
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    const answers = await api.get(endpoints.allAnswers);
+    const targetAnswer = answers.body.find((a) => a.id === response.body.id);
+    
+    assert(targetAnswer.user.username === nonAnonUser.username);
+  });
 });
 
 after(async () => {
