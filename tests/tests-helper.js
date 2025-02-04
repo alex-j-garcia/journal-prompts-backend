@@ -1,6 +1,6 @@
+const User = require('../models/user');
 const Prompt = require('../models/prompt');
 const Answer = require('../models/answer');
-const User = require('../models/user');
 const { faker } = require('@faker-js/faker');
 
 const setActivePrompt = (prompts) => {
@@ -40,7 +40,7 @@ const generateTestAnswers = (length = 2, wordCount = 100) => {
   testData.length = length;
   
   for (let i = 0; i < testData.length; i++) {
-    testData[i] = getAnswerPayload();
+    testData[i] = getAnswerPayload(wordCount);
   }
 
   return testData;
@@ -49,6 +49,11 @@ const generateTestAnswers = (length = 2, wordCount = 100) => {
 const getPromptsInDb = async () => {
   const documents = await Prompt.find({});
   return documents.map((prompt) => prompt.toJSON());
+};
+
+const getActivePromptInDb = async () => {
+  const activePrompt = await Prompt.findOne({ activePrompt: true });
+  return activePrompt.toJSON();
 };
 
 const getAnswersInDb = async () => {
@@ -76,6 +81,7 @@ module.exports = {
   prompts: {
     initialPrompts: generateTestPrompts(),
     getPromptsInDb,
+    getActivePromptInDb,
   },
   answers: {
     initialAnswers: generateTestAnswers(),

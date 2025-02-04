@@ -20,7 +20,7 @@ const errorHandler = (error, request, response, next) => {
       && error.message.includes('answer: Path `answer` is required.')) {
     return response.status(400).send({ error: 'answer is required' });
   }
-
+  
   next(error);
 };
 
