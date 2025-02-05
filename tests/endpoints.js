@@ -1,4 +1,4 @@
 module.exports = {
-  allPrompts: '/api/prompts',
+  activePrompt: '/api/prompts',
   allAnswers: '/api/answers',
 };

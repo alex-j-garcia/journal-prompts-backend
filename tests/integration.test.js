@@ -214,7 +214,7 @@ describe('/api', () => {
       await prompt.save();
       
       await api
-        .get(endpoints.allPrompts)
+        .get(endpoints.activePrompt)
         .expect(200)
         .expect('Content-Type', /application\/json/);
     });
@@ -225,7 +225,7 @@ describe('/api', () => {
       const promptObject = prompt.toJSON();
   
       const response = await api
-        .get(endpoints.allPrompts)
+        .get(endpoints.activePrompt)
         .expect(200)
         .expect('Content-Type', /application\/json/);
   
@@ -237,7 +237,7 @@ describe('/api', () => {
       await prompt.save();
   
       const response = await api
-        .get(endpoints.allPrompts)
+        .get(endpoints.activePrompt)
         .expect(200)
         .expect('Content-Type', /application\/json/);
   
@@ -249,7 +249,7 @@ describe('/api', () => {
       await prompt.save();
   
       const response = await api
-        .get(endpoints.allPrompts)
+        .get(endpoints.activePrompt)
         .expect(200)
         .expect('Content-Type', /application\/json/);
   
@@ -264,7 +264,7 @@ describe('/api', () => {
       const savedUser = await userDocument.save();
       
       const response = await api
-        .get(endpoints.allPrompts)
+        .get(endpoints.activePrompt)
         .set('user', savedUser._id.toString())
         .expect(200)
         .expect('Content-Type', /application\/json/);
@@ -297,7 +297,7 @@ describe('/api', () => {
       await anotherAnswer.save();
       
       const response = await api
-        .get(endpoints.allPrompts)
+        .get(endpoints.activePrompt)
         .set('user', userObject.id)
         .expect(200)
         .expect('Content-Type', /application\/json/);
