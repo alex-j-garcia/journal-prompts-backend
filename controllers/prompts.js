@@ -27,7 +27,12 @@ promptsRouter.get('/', async (request, response, next) => {
       });
     }
 
-    const answers = await Answer.find({});
+    const answers = await Answer
+      .find({
+        promptId: activePrompt._id.toString(),
+      })
+      .populate('user', { username: 1 });
+    
     response.json({ ...activePrompt.toJSON(), answers, });
   } catch(exception) {
     next(exception);
