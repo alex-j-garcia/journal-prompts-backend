@@ -18,7 +18,7 @@ const {
 
 const { faker } = require('@faker-js/faker')
 
-describe('/api', () => {
+describe('/api', {only:true}, () => {
   before(async () => {
     await setupTestDB();
   });
@@ -310,6 +310,29 @@ describe('/api', () => {
       assert(activePromptAndAnswers.body.answers.every((answer) => (
         answer.promptId === activePromptObject.id
       )));
+    });
+  });
+
+  describe('/users', {only:true}, () => {
+    it('should return response in JSON format', {only:true}, async () => {
+      await api
+        .post(endpoints.createUser)
+        .send({
+          username: faker.internet.username(),
+          password: faker.internet.password(),
+        })
+        .expect('Content-Type', /application\/json/);
+    });
+    
+    it('should return 201 if user is successfully created', {only:true}, async () => {
+      const response = await api
+        .post(endpoints.createUser)
+        .send({
+          username: faker.internet.username(),
+          password: faker.internet.password(),
+        })
+        .expect(201)
+        .expect('Content-Type', /application\/json/);
     });
   });
 });
