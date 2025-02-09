@@ -19,6 +19,12 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.name === 'ValidationError'
       && error.message.includes('answer: Path `answer` is required.')) {
     return response.status(400).send({ error: 'answer is required' });
+  } else if (error.name === 'ValidationError'
+      && error.message.includes('username: Path `username` is required.')) {
+    return response.status(400).send({ error: 'property "username" is required' });
+  } else if (error.name === 'MongoServerError'
+      && error.message.includes('E11000 duplicate key error')) {
+    return response.status(400).send({ error: 'this username is already taken.' });
   }
   
   next(error);
