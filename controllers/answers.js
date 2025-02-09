@@ -1,6 +1,13 @@
 const answersRouter = require('express').Router();
 const User = require('../models/user')
 const Answer = require('../models/answer');
+const { faker }= require('@faker-js/faker');
+
+const getAnonUser = () => {
+  const animal = faker.animal.type();
+  const number = faker.string.numeric(7);
+  return `anonymous ${animal} ${number}`;
+};
 
 answersRouter.get('/', async (request, response, next) => {
   try {
@@ -17,7 +24,7 @@ answersRouter.get('/', async (request, response, next) => {
 answersRouter.post('/', async (request, response, next) => {
   try {
     if (!request.body.user) {
-      const anonUser = new User({ username: 'anonymous' });
+      const anonUser = new User({ username: getAnonUser() });
       const savedAnonUser = await anonUser.save();
       request.body.user = savedAnonUser._id.toString();
     }
