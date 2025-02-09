@@ -18,7 +18,7 @@ const {
 
 const { faker } = require('@faker-js/faker')
 
-describe('/api', {only:true}, () => {
+describe('/api', () => {
   before(async () => {
     await setupTestDB();
   });
@@ -148,7 +148,8 @@ describe('/api', {only:true}, () => {
         answer.id === submittedAnswer.body.id
       ));
       
-      assert(prompt.user.username === 'anonymous');
+      assert(prompt.user.id === submittedAnswer.body.user);
+      assert(prompt.user.username.includes('anonymous'));
     });
   
     it('should associate user answers with existing users', async () => {
@@ -313,7 +314,7 @@ describe('/api', {only:true}, () => {
     });
   });
 
-  describe('/users', {only:true}, () => {
+  describe('/users', () => {
     it('should return response in JSON format', async () => {
       await api
         .post(endpoints.createUser)
@@ -335,6 +336,24 @@ describe('/api', {only:true}, () => {
         .expect('Content-Type', /application\/json/);
     });
 
+    it('should create a new user on successful POST', async () => {
+      const usersAtTestStart = await User.find({});
+      
+      const response = await api
+        .post(endpoints.createUser)
+        .send({
+          username: faker.internet.username(),
+          password: faker.internet.password(),
+        })
+        .expect(201)
+        .expect('Content-Type', /application\/json/);
+      
+      const usersAtTestEnd = await User.find({});
+      
+      assert(usersAtTestEnd.length === usersAtTestStart.length + 1);
+      assert(usersAtTestEnd.find((user) => user.username === response.body.username));
+    });
+
     it('should never reveal the passwordHash user property', async () => {
       const response = await api
         .post(endpoints.createUser)
@@ -348,7 +367,7 @@ describe('/api', {only:true}, () => {
       assert(response.body.passwordHash === undefined);
     });
 
-    it('should return 400 if username is omitted', {only:true}, async () => {
+    it('should return 400 if username is omitted', async () => {
       await api
         .post(endpoints.createUser)
         .send({
@@ -358,7 +377,7 @@ describe('/api', {only:true}, () => {
         .expect('Content-Type', /application\/json/);
     });
 
-    it('should return an error message if username is omitted', {only:true}, async () => {
+    it('should return an error message if username is omitted', async () => {
       const response = await api
         .post(endpoints.createUser)
         .send({
@@ -370,7 +389,7 @@ describe('/api', {only:true}, () => {
       assert(response.body.error === 'property "username" is required');
     });
 
-    it('should return 400 if password is ommitted', {only:true}, async () => {
+    it('should return 400 if password is ommitted', async () => {
       await api
         .post(endpoints.createUser)
         .send({
@@ -380,7 +399,7 @@ describe('/api', {only:true}, () => {
         .expect('Content-Type', /application\/json/);
     });
 
-    it('should return an error message if password is ommitted', {only:true}, async () => {
+    it('should return an error message if password is ommitted', async () => {
       const response = await api
         .post(endpoints.createUser)
         .send({
@@ -392,7 +411,7 @@ describe('/api', {only:true}, () => {
       assert(response.body.error === 'property "password" is required');
     });
 
-    it('should return 400 if username is not unique', {only:true}, async () => {
+    it('should return 400 if username is not unique', async () => {
       const repeatUsername = faker.internet.username();
 
       await api
@@ -414,7 +433,7 @@ describe('/api', {only:true}, () => {
         .expect('Content-Type', /application\/json/);
     });
 
-    it('should return an error message if username is not unique', {only:true}, async () => {
+    it('should return an error message if username is not unique', async () => {
       const repeatUsername = faker.internet.username();
 
       await api
@@ -436,6 +455,26 @@ describe('/api', {only:true}, () => {
         .expect('Content-Type', /application\/json/);
 
       assert(response.body.error === 'this username is already taken.');
+    });
+
+    it('should not create a new user on unsuccessful POST', async () => {
+      const usersAtTestStart = await User.find({});
+
+      await api
+        .post(endpoints.createUser)
+        .send({ password: faker.internet.password(), })
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      await api
+        .post(endpoints.createUser)
+        .send({ username: faker.internet.username(), })
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      const usersAtTestEnd = await User.find({});
+
+      assert(usersAtTestEnd.length === usersAtTestStart.length);
     });
   });
 });
