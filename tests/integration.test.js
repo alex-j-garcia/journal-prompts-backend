@@ -17,6 +17,8 @@ const {
 } = require('./setup');
 
 const { faker } = require('@faker-js/faker')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 describe('/api', () => {
   before(async () => {
@@ -475,6 +477,126 @@ describe('/api', () => {
       const usersAtTestEnd = await User.find({});
 
       assert(usersAtTestEnd.length === usersAtTestStart.length);
+    });
+  });
+  
+  describe('/login', () => {
+    it('should return response in JSON format', async () => {
+      await api
+        .post(endpoints.login)
+        .send({ password: faker.internet.password() })
+        .expect('Content-Type', /application\/json/);
+    });
+
+    it('should return 401 if username is omitted', async () => {
+      await api
+        .post(endpoints.login)
+        .send({ password: faker.internet.password() })
+        .expect(401)
+        .expect('Content-Type', /application\/json/);
+    });
+
+    it('should return 401 if password is omitted', async () => {
+      await api
+        .post(endpoints.login)
+        .send({ username: faker.internet.username() })
+        .expect(401)
+        .expect('Content-Type', /application\/json/);
+    });
+
+    it('should return 401 if username does not exist', async () => {
+      const response = await api
+        .post(endpoints.login)
+        .send({ 
+          username: faker.internet.username(),
+          password: faker.internet.password(),
+        })
+        .expect(401)
+        .expect('Content-Type', /application\/json/);
+
+      assert(response.body.error === 'invalid username or password');
+    });
+
+    it('should return 401 if password is invalid', async () => {
+      const user = {
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+      const passwordHash = await bcrypt.hash(user.password, 6);
+
+      const userDoc = new User({
+        username: user.username,
+        passwordHash,
+      });
+      await userDoc.save();
+
+      const response = await api
+        .post(endpoints.login)
+        .send({
+          username: user.username,
+          password: user.password.substring(1),
+        })
+        .expect(401)
+        .expect('Content-Type', /application\/json/);
+
+      assert(response.body.error === 'invalid username or password');
+    });
+
+    it('should return 200 if login is successful', async () => {
+      const user = {
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+      const passwordHash = await bcrypt.hash(user.password, 6);
+
+      const userDoc = new User({
+        username: user.username,
+        passwordHash,
+      });
+      await userDoc.save();
+
+      await api
+        .post(endpoints.login)
+        .send({
+          username: user.username,
+          password: user.password,
+        })
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+    });
+
+
+    it('should return the username and token on successful login', async () => {
+      const user = {
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+      const passwordHash = await bcrypt.hash(user.password, 6);
+
+      const userDoc = new User({
+        username: user.username,
+        passwordHash,
+      });
+      const savedUser = await userDoc.save();
+
+      const userForToken = {
+        username: user.username,
+        id: savedUser._id,
+      };
+
+      const token = jwt.sign(userForToken, process.env.SECRET);
+
+      const response = await api
+        .post(endpoints.login)
+        .send({
+          username: user.username,
+          password: user.password,
+        })
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+
+      assert(response.body.username === user.username);
+      assert(response.body.token === token);
     });
   });
 });
