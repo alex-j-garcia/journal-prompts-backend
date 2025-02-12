@@ -12,8 +12,8 @@ const getAnonUser = () => {
 answersRouter.get('/', async (request, response, next) => {
   try {
     const answers = await Answer
-    .find({})
-    .populate('user', { username: 1 });
+      .find({})
+      .populate('user', { username: 1 });
 
     response.json(answers);
   } catch (exception) {
@@ -36,7 +36,8 @@ answersRouter.post('/', async (request, response, next) => {
     });
 
     const savedAnswer = await answerDoc.save();
-    response.status(201).json(savedAnswer);
+    const answerWithUsername = await savedAnswer.populate('user');
+    response.status(201).json(answerWithUsername);
   } catch (exception) {
     next(exception);
   }
