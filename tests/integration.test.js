@@ -146,40 +146,40 @@ describe('/api', () => {
         .expect('Content-Type', /application\/json/);
   
       const allAnswers = await api.get(endpoints.allAnswers);
-      const prompt = allAnswers.body.find((answer) => (
+      const targetAnswer = allAnswers.body.find((answer) => (
         answer.id === submittedAnswer.body.id
       ));
-      
-      assert(prompt.user.id === submittedAnswer.body.user);
-      assert(prompt.user.username.includes('anonymous'));
+
+      assert(targetAnswer.user.id === submittedAnswer.body.user.id);
+      assert(targetAnswer.user.username.includes('anonymous'));
     });
   
     it('should associate user answers with existing users', async () => {
       const userDoc = new User({ username: 'ben-frank' });
-      const savedUser = (await userDoc.save()).toJSON();
+      const savedUser = await userDoc.save();
       
       const activePromptDoc = new Prompt({
         activePrompt: true,
         tag: faker.lorem.words(1),
         content: faker.lorem.words(4),
       });
-      const savedPrompt = (await activePromptDoc.save()).toJSON();
+      const savedPrompt = await activePromptDoc.save();
 
       const submittedAnswer = await api
         .post(endpoints.allAnswers)
+        .set('user', savedUser._id.toString())
         .send({
-          user: savedUser.id,
-          promptId: savedPrompt.id,
+          promptId: savedPrompt._id.toString(),
           answer: faker.lorem.words(50),
         })
         .expect(201)
         .expect('Content-Type', /application\/json/);
-  
+
       const allAnswers = await api.get(endpoints.allAnswers);
       const targetAnswer = allAnswers.body.find((answer) => (
         answer.id === submittedAnswer.body.id
       ));
-      
+
       assert(targetAnswer.user.username === savedUser.username);
     });
   });
@@ -306,7 +306,7 @@ describe('/api', () => {
 
       const activePromptAndAnswers = await api
         .get(endpoints.activePrompt)
-        .set('user', user)
+        .set('user', user.id)
         .expect(200)
         .expect('Content-Type', /application\/json/);
       

@@ -1,9 +1,27 @@
+const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger')
 
 const requestLogger = (request, response, next) => {
   logger.info(`[${request.method}] ${request.url}`);
   logger.info(`Query string: ${JSON.stringify(request.query)}`);
   logger.info(`Body: ${JSON.stringify(request.body)}`);
+  next();
+};
+
+const getUserOrTokenFromRequest = (request, response, next) => {
+  const userOrTokenOrNull = request.get('user')
+    || request.get('authorization');
+  
+  if (userOrTokenOrNull && userOrTokenOrNull.startsWith('Bearer ')) {
+    const token = userOrTokenOrNull.replace('Bearer ', '');
+    const decodedToken = jwt.verify(token, process.env.SECRET);
+    request.body.user = decodedToken.id;
+  } else {
+    request.body.user = userOrTokenOrNull
+      ? userOrTokenOrNull
+      : null;
+  }
+
   next();
 };
 
@@ -36,6 +54,7 @@ const unknownEndpoint = (request, response) => {
 
 module.exports = {
   requestLogger,
+  getUserOrTokenFromRequest,
   unknownEndpoint,
   errorHandler,
 };

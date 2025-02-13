@@ -8,6 +8,7 @@ const middleware = require('./utils/middleware');
 
 app.use(express.static('dist'));
 app.use(express.json());
+app.use(middleware.getUserOrTokenFromRequest);
 app.use(middleware.requestLogger);
 
 app.use('/api/prompts', promptsRouter);

@@ -1,15 +1,6 @@
 const promptsRouter = require('express').Router();
 const Prompt = require('../models/prompt');
-const User = require('../models/user');
 const Answer = require('../models/answer');
-
-const getUser = (request, response, next) => {
-  const { user } = request.headers;
-  request.body.user = user;
-  next();
-};
-
-promptsRouter.use(getUser);
 
 promptsRouter.get('/', async (request, response, next) => {
   try {
