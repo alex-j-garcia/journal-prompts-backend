@@ -1,6 +1,6 @@
 module.exports = {
   login: '/api/login',
+  answers: '/api/answers',
   createUser: '/api/users',
-  allAnswers: '/api/answers',
   activePrompt: '/api/prompts',
 };

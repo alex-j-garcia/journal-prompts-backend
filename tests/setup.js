@@ -7,7 +7,8 @@ const api = supertest(app);
 
 const setupTestDB = async () => {
   await connectDB();
-  await mongoose.connection.db.dropDatabase(); // Ensure a fresh start
+  // Ensure a fresh start
+  await mongoose.connection.db.dropDatabase();
 };
 
 const teardownTestDB = async () => {

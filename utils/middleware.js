@@ -8,18 +8,13 @@ const requestLogger = (request, response, next) => {
   next();
 };
 
-const getUserOrTokenFromRequest = (request, response, next) => {
-  const userOrTokenOrNull = request.get('user')
-    || request.get('authorization');
+const getTokenFromRequest = (request, response, next) => {
+  const userTokenOrNull = request.get('authorization');
   
-  if (userOrTokenOrNull && userOrTokenOrNull.startsWith('Bearer ')) {
-    const token = userOrTokenOrNull.replace('Bearer ', '');
+  if (userTokenOrNull && userTokenOrNull.startsWith('Bearer ')) {
+    const token = userTokenOrNull.replace('Bearer ', '');
     const decodedToken = jwt.verify(token, process.env.SECRET);
-    request.body.user = decodedToken.id;
-  } else {
-    request.body.user = userOrTokenOrNull
-      ? userOrTokenOrNull
-      : null;
+    request.body.user = decodedToken ? decodedToken.id : null;
   }
 
   next();
@@ -54,7 +49,7 @@ const unknownEndpoint = (request, response) => {
 
 module.exports = {
   requestLogger,
-  getUserOrTokenFromRequest,
+  getTokenFromRequest,
   unknownEndpoint,
   errorHandler,
 };

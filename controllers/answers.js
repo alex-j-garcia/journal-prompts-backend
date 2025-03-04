@@ -10,9 +10,11 @@ const getAnonUser = () => {
 };
 
 answersRouter.get('/', async (request, response, next) => {
+  const promptId = request.query.promptId;
+
   try {
     const answers = await Answer
-      .find({})
+      .find({ promptId })
       .populate('user', { username: 1 });
 
     response.json(answers);

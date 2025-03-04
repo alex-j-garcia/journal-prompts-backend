@@ -37,24 +37,49 @@ describe('/api', () => {
 
   describe('/answers', () => {
     it('should return answers in JSON format', async () => {
-      const answer = new Answer({ answer: faker.lorem.words(100) });
-      await answer.save();
+      const prompt = await (new Prompt({
+        activePrompt: true,
+        tag: faker.lorem.words(1),
+        content: faker.lorem.words(4),
+      }).save());
+      const answer = await (new Answer({ 
+        answer: faker.lorem.words(100),
+        promptId: prompt.id,
+       }).save());
 
       await api
-        .get(endpoints.allAnswers)
+        .get(`${endpoints.answers}?promptId=${prompt.id}`)
         .expect(200)
         .expect('Content-Type', /application\/json/);
     });
   
-    it('should return all answers', async () => {
-      const answer = new Answer({ answer: faker.lorem.words(50) });
-      await answer.save();
+    it('should return associated answers', async () => {
+      const prompt = await (new Prompt({
+        activePrompt: true,
+        tag: faker.lorem.words(1),
+        content: faker.lorem.words(4),
+      }).save());
+      await (new Answer({ 
+        answer: faker.lorem.words(100),
+        promptId: prompt.id,
+      }).save());
+      await (new Answer({ 
+        answer: faker.lorem.words(100),
+        promptId: prompt.id,
+      }).save());
 
-      const answer2 = new Answer({ answer: faker.lorem.words(50) });
-      await answer2.save();
+      const prompt2 = await (new Prompt({
+        activePrompt: true,
+        tag: faker.lorem.words(1),
+        content: faker.lorem.words(4),
+      }).save());
+      await (new Answer({ 
+        answer: faker.lorem.words(100),
+        promptId: prompt2.id,
+      }).save());
   
       const response = await api
-        .get(endpoints.allAnswers)
+        .get(`${endpoints.answers}?promptId=${prompt.id}`)
         .expect(200)
         .expect('Content-Type', /application\/json/);
         
@@ -65,7 +90,7 @@ describe('/api', () => {
       const payload = { answer: faker.lorem.words(50) };
   
       await api
-        .post(endpoints.allAnswers)
+        .post(endpoints.answers)
         .send(payload)
         .expect(201);
     });
@@ -74,7 +99,7 @@ describe('/api', () => {
       const payload = { answer: faker.lorem.words(50) };
   
       await api
-        .post(endpoints.allAnswers)
+        .post(endpoints.answers)
         .send(payload)
         .expect(201)
         .expect('Content-Type', /application\/json/);
@@ -84,7 +109,7 @@ describe('/api', () => {
       const payload = { answer: faker.lorem.words(50) };
   
       const response = await api
-        .post(endpoints.allAnswers)
+        .post(endpoints.answers)
         .send(payload)
         .expect(201)
         .expect('Content-Type', /application\/json/);
@@ -96,7 +121,7 @@ describe('/api', () => {
       const payload = { answer: faker.lorem.words(1) };
       
       const response = await api
-      .post(endpoints.allAnswers)
+      .post(endpoints.answers)
       .send(payload)
       .expect(400)
       .expect('Content-Type', /application\/json/);
@@ -108,7 +133,7 @@ describe('/api', () => {
       const payload = { answer: faker.lorem.words(1500) };
       
       const response = await api
-      .post(endpoints.allAnswers)
+      .post(endpoints.answers)
       .send(payload)
       .expect(400)
       .expect('Content-Type', /application\/json/);
@@ -120,7 +145,7 @@ describe('/api', () => {
       const payload = {};
       
       const response = await api
-      .post(endpoints.allAnswers)
+      .post(endpoints.answers)
       .send(payload)
       .expect(400)
       .expect('Content-Type', /application\/json/);
@@ -129,15 +154,14 @@ describe('/api', () => {
     });
 
     it('should associate anonymous answers with anonymous users', async () => {
-      const activePromptDoc = new Prompt({
+      const activePrompt = await (new Prompt({
         activePrompt: true,
         tag: faker.lorem.words(1),
         content: faker.lorem.words(4),
-      });
-      const activePrompt = (await activePromptDoc.save()).toJSON();
+      }).save());
       
       const submittedAnswer = await api
-        .post(endpoints.allAnswers)
+        .post(endpoints.answers)
         .send({
           promptId: activePrompt.id,
           answer: faker.lorem.words(50),
@@ -145,8 +169,8 @@ describe('/api', () => {
         .expect(201)
         .expect('Content-Type', /application\/json/);
   
-      const allAnswers = await api.get(endpoints.allAnswers);
-      const targetAnswer = allAnswers.body.find((answer) => (
+      const answers = await api.get(`${endpoints.answers}?promptId=${activePrompt.id}`);
+      const targetAnswer = answers.body.find((answer) => (
         answer.id === submittedAnswer.body.id
       ));
 
@@ -155,28 +179,27 @@ describe('/api', () => {
     });
   
     it('should associate user answers with existing users', async () => {
-      const userDoc = new User({ username: 'ben-frank' });
-      const savedUser = await userDoc.save();
+      const savedUser = await (new User({ username: 'ben-frank' }).save());
       
-      const activePromptDoc = new Prompt({
+      const activePrompt = await (new Prompt({
         activePrompt: true,
         tag: faker.lorem.words(1),
         content: faker.lorem.words(4),
-      });
-      const savedPrompt = await activePromptDoc.save();
+      }).save());
 
       const submittedAnswer = await api
-        .post(endpoints.allAnswers)
-        .set('user', savedUser._id.toString())
+        .post(endpoints.answers)
         .send({
-          promptId: savedPrompt._id.toString(),
+          promptId: activePrompt._id.toString(),
           answer: faker.lorem.words(50),
+          user: savedUser._id.toString(),
         })
         .expect(201)
         .expect('Content-Type', /application\/json/);
-
-      const allAnswers = await api.get(endpoints.allAnswers);
-      const targetAnswer = allAnswers.body.find((answer) => (
+      
+      const answers = await api.get(`${endpoints.answers}?promptId=${activePrompt.id}`);
+      
+      const targetAnswer = answers.body.find((answer) => (
         answer.id === submittedAnswer.body.id
       ));
 
@@ -238,10 +261,17 @@ describe('/api', () => {
       
       const userDocument = new User({ username: 'test_user' });
       const savedUser = await userDocument.save();
+
+      const userForToken = {
+        username: savedUser.username,
+        id: savedUser._id.toString(),
+      };
+
+      const token = jwt.sign(userForToken, process.env.SECRET);
       
       const response = await api
         .get(endpoints.activePrompt)
-        .set('user', savedUser._id.toString())
+        .set('authorization', `Bearer ${token}`)
         .expect(200)
         .expect('Content-Type', /application\/json/);
     
@@ -254,6 +284,12 @@ describe('/api', () => {
 
       const userDocument = new User({ username: 'test_user' });
       const userObject = (await userDocument.save()).toJSON();
+
+      const userForToken = {
+        username: userObject.username,
+        id: userObject.id,
+      };
+      const token = jwt.sign(userForToken, process.env.SECRET);
   
       const answer = new Answer({
         answer: faker.lorem.words(100),
@@ -271,7 +307,7 @@ describe('/api', () => {
       
       const response = await api
         .get(endpoints.activePrompt)
-        .set('user', userObject.id)
+        .set('authorization', `Bearer ${token}`)
         .expect(200)
         .expect('Content-Type', /application\/json/);
       
@@ -285,7 +321,7 @@ describe('/api', () => {
       const inactivePromptObject = (await inactivePrompt.save()).toJSON();
 
       const activeAnswerSubmission = await api
-        .post(endpoints.allAnswers)
+        .post(endpoints.answers)
         .send({
           answer: faker.lorem.words(100),
           promptId: activePromptObject.id,
@@ -294,9 +330,14 @@ describe('/api', () => {
         .expect('Content-Type', /application\/json/);
       
       const { user } = activeAnswerSubmission.body;
-
+      const userForToken = {
+        username: user.username,
+        id: user.id,
+      };
+      const token = jwt.sign(userForToken, process.env.SECRET);
+      
       await api
-        .post(endpoints.allAnswers)
+        .post(endpoints.answers)
         .send({
           answer: faker.lorem.words(100),
           promptId: inactivePromptObject.id,
@@ -306,7 +347,7 @@ describe('/api', () => {
 
       const activePromptAndAnswers = await api
         .get(endpoints.activePrompt)
-        .set('user', user.id)
+        .set('authorization', `Bearer ${token}`)
         .expect(200)
         .expect('Content-Type', /application\/json/);
       
