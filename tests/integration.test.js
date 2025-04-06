@@ -622,7 +622,7 @@ describe('/api', () => {
 
       const userForToken = {
         username: user.username,
-        id: savedUser._id,
+        id: savedUser._id.toString(),
       };
 
       const token = jwt.sign(userForToken, process.env.SECRET);
