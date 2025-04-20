@@ -1,7 +1,7 @@
-const app = require('./app');
-const { connectDB, closeDB } = require('./db');
-const config = require('./utils/config');
-const logger = require('./utils/logger');
+import app from './app.js';
+import { connectDB } from './db.js';
+import config from './utils/config.js';
+import logger from './utils/logger.js';
 
 connectDB()
   .then(() => {

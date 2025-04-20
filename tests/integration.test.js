@@ -1,24 +1,24 @@
-const { 
+import { 
   it,
   describe,
   before,
   after,
   afterEach,
-} = require('node:test');
-const assert = require('node:assert/strict');
-const Answer = require('../models/answer');
-const Prompt = require('../models/prompt');
-const User = require('../models/user');
-const endpoints = require('./endpoints');
-const {
+} from 'node:test';
+import assert from 'node:assert/strict';
+import Answer from '../models/answer.js';
+import Prompt from '../models/prompt.js';
+import User from '../models/user.js';
+import endpoints from './endpoints.js';
+import {
   api,
   setupTestDB,
   teardownTestDB
-} = require('./setup');
+} from './setup.js';
 
-const { faker } = require('@faker-js/faker')
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 describe('/api', () => {
   before(async () => {

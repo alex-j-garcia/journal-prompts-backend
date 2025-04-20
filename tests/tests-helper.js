@@ -1,7 +1,7 @@
-const User = require('../models/user');
-const Prompt = require('../models/prompt');
-const Answer = require('../models/answer');
-const { faker } = require('@faker-js/faker');
+import { faker } from '@faker-js/faker';
+import User from '../models/user.js';
+import Prompt from '../models/prompt.js';
+import Answer from '../models/answer.js';
 
 const setActivePrompt = (prompts) => {
   const index = Math.floor(Math.random() * prompts.length);
@@ -77,7 +77,7 @@ const getMalformedID = () => {
   return faker.number.romanNumeral();
 };
 
-module.exports = {
+export default {
   prompts: {
     initialPrompts: generateTestPrompts(),
     getPromptsInDb,

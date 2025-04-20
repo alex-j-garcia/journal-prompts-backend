@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   login: '/api/login',
   answers: '/api/answers',
   createUser: '/api/users',

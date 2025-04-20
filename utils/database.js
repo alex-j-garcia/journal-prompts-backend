@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
-const dayjs = require('dayjs');
-const Prompt = require('../models/prompt');
-const prompts = require('./prompts.json');
+import mongoose from 'mongoose';
+import dayjs from 'dayjs';
+import Prompt from '../models/prompt.js';
+import prompts from './prompts.json';
 
-require('dotenv').config();
+import { configDotenv } from 'dotenv';
+configDotenv();
 
 mongoose.set('strictQuery', false);
 

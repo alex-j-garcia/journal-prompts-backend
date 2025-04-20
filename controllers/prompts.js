@@ -1,6 +1,8 @@
-const promptsRouter = require('express').Router();
-const Prompt = require('../models/prompt');
-const Answer = require('../models/answer');
+import express from 'express';
+import Prompt from '../models/prompt.js';
+import Answer from '../models/answer.js';
+
+const promptsRouter = express.Router();
 
 promptsRouter.get('/', async (request, response, next) => {
   try {
@@ -35,4 +37,4 @@ promptsRouter.get('/', async (request, response, next) => {
   }
 });
 
-module.exports = promptsRouter;
+export default promptsRouter;

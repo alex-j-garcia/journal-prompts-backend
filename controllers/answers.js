@@ -1,7 +1,10 @@
-const answersRouter = require('express').Router();
-const User = require('../models/user')
-const Answer = require('../models/answer');
-const { faker }= require('@faker-js/faker');
+import express from 'express';
+import User from '../models/user.js';
+import Answer from '../models/answer.js';
+import { faker } from '@faker-js/faker';
+import { Filter } from 'bad-words';
+
+const answersRouter = express.Router();
 
 const getAnonUser = () => {
   const animal = faker.animal.type();
@@ -24,6 +27,9 @@ answersRouter.get('/', async (request, response, next) => {
 });
 
 answersRouter.post('/', async (request, response, next) => {
+  const badWordsFilter = new Filter();
+  const cleanAnswer = badWordsFilter.clean(request.body.answer);
+
   try {
     if (!request.body.user) {
       const anonUser = new User({ username: getAnonUser() });
@@ -32,7 +38,7 @@ answersRouter.post('/', async (request, response, next) => {
     }
 
     const answerDoc = new Answer({
-      answer: request.body.answer,
+      answer: cleanAnswer,
       promptId: request.body.promptId,
       user: request.body.user,
     });
@@ -45,4 +51,4 @@ answersRouter.post('/', async (request, response, next) => {
   }
 });
 
-module.exports = answersRouter;
+export default answersRouter;

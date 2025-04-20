@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import usersRouter from './controllers/users.js';
+import answersRouter from './controllers/answers.js';
+import promptsRouter from './controllers/prompts.js';
+import loginRouter from './controllers/login.js';
+import middleware from './utils/middleware.js';
+
 const app = express();
-const usersRouter = require('./controllers/users');
-const answersRouter = require('./controllers/answers');
-const promptsRouter = require('./controllers/prompts');
-const loginRouter = require('./controllers/login');
-const middleware = require('./utils/middleware');
 
 app.use(express.static('dist'));
 app.use(express.json());
@@ -19,4 +20,4 @@ app.use('/api/login', loginRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
-module.exports = app;
+export default app;

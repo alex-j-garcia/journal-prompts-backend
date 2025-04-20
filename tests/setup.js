@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const supertest = require('supertest');
-const app = require('../app');
-const { connectDB, closeDB } = require('../db');
+import mongoose from 'mongoose';
+import supertest from 'supertest';
+import app from '../app.js';
+import { connectDB, closeDB } from '../db.js';
 
 const api = supertest(app);
 
@@ -15,7 +15,7 @@ const teardownTestDB = async () => {
   await closeDB();
 };
 
-module.exports = {
+export default {
   api,
   setupTestDB,
   teardownTestDB,

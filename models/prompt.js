@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const promptSchema = new mongoose.Schema({
   content: String,
@@ -16,4 +16,4 @@ promptSchema.set('toJSON', {
 
 const Prompt = mongoose.model('Prompt', promptSchema);
 
-module.exports = Prompt;
+export default Prompt;

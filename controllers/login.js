@@ -1,7 +1,9 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const loginRouter = require('express').Router();
-const User = require('../models/user');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import express from 'express';
+import User from '../models/user.js';
+
+const loginRouter = express.Router();
 
 loginRouter.post('/', async (request, response, next) => {
   try {
@@ -30,4 +32,4 @@ loginRouter.post('/', async (request, response, next) => {
   }
 });
 
-module.exports = loginRouter;
+export default loginRouter;

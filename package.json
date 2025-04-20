@@ -1,6 +1,7 @@
 {
   "name": "journal-prompts",
   "version": "1.0.0",
+  "type": "module",
   "description": "Journaling application with provided writing prompts",
   "main": "index.js",
   "scripts": {
@@ -26,6 +27,7 @@
     "supertest": "~7.0.0"
   },
   "dependencies": {
+    "bad-words": "~4.0.0",
     "bcrypt": "~5.1.1",
     "dotenv": "~16.4.7",
     "express": "~4.21.2",

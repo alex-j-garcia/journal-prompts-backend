@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const logger = require('../utils/logger')
+import jwt from 'jsonwebtoken';
+import logger from '../utils/logger.js';
 
 const requestLogger = (request, response, next) => {
   logger.info(`[${request.method}] ${request.url}`);
@@ -47,7 +47,7 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
-module.exports = {
+export default {
   requestLogger,
   getTokenFromRequest,
   unknownEndpoint,
