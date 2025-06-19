@@ -15,7 +15,7 @@ const teardownTestDB = async () => {
   await closeDB();
 };
 
-export default {
+export {
   api,
   setupTestDB,
   teardownTestDB,
