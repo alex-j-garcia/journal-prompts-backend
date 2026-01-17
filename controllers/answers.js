@@ -27,25 +27,30 @@ answersRouter.get('/', async (request, response, next) => {
 });
 
 answersRouter.post('/', async (request, response, next) => {
+  const { answer, promptId, user } = request.body;
   const badWordsFilter = new Filter();
-  const cleanAnswer = badWordsFilter.clean(request.body.answer);
+  const cleanAnswer = badWordsFilter.clean(answer);
 
   try {
-    if (!request.body.user) {
+    if (!user) {
       const anonUser = new User({ username: getAnonUser() });
       const savedAnonUser = await anonUser.save();
       request.body.user = savedAnonUser._id.toString();
     }
 
     const answerDoc = new Answer({
-      answer: cleanAnswer,
-      promptId: request.body.promptId,
       user: request.body.user,
+      answer: cleanAnswer,
+      promptId,
     });
 
-    const savedAnswer = await answerDoc.save();
-    const answerWithUsername = await savedAnswer.populate('user');
-    response.status(201).json(answerWithUsername);
+    await answerDoc.save();
+
+    const answersWithUsernames = await Answer
+      .find({ promptId })
+      .populate('user', { username: 1 });
+
+    response.status(201).json(answersWithUsernames);
   } catch (exception) {
     next(exception);
   }
