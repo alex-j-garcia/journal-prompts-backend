@@ -8,9 +8,10 @@ promptsRouter.get('/', async (request, response, next) => {
   try {
     const activePrompt = await Prompt.findOne({ activePrompt: true });
     
+    // Need to use a cookie here if the user is logged out.
     const answer = await Answer.findOne({
-      user: request.body.user,
-      promptId: activePrompt._id,
+      user: request.body.userId,
+      promptId: activePrompt.id,
     });
  
     if (!answer) {
@@ -23,7 +24,7 @@ promptsRouter.get('/', async (request, response, next) => {
     }
 
     const answers = await Answer
-      .find({ promptId: activePrompt._id.toString() })
+      .find({ promptId: activePrompt.id })
       .populate('user', { username: 1 });
     
     response

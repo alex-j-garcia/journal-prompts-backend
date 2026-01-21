@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.static('dist'));
 app.use(express.json());
-app.use(middleware.getTokenFromRequest);
+app.use(middleware.getUserIdFromToken);
 app.use(middleware.requestLogger);
 
 app.use('/api/prompts', promptsRouter);
